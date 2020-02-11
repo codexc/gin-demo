@@ -3,7 +3,10 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	. "learn/topic/src"
+	"learn/topic/src/App"
+	"learn/topic/src/App/services"
+	"learn/topic/src/AppInit"
+	"learn/topic/src/Models"
 )
 
 func main() {
@@ -12,16 +15,23 @@ func main() {
 
 	topicRouter := router.Group("/topic")
 	{
-		topicRouter.Handle("GET", "/id/:id", GetById())
-		topicRouter.GET("/list", GetList())
-		topicRouter.GET("/getbypage", GetByPage())
-		//需要使用鉴权的
-		topicRouter.Use(MustLogin())
-		topicRouter.POST("/del/:id", DelById) //这个方法为啥没加()?
-		topicRouter.POST("create", Create())
-		topicRouter.POST("mcreate", Mcreate())
+		//常规写法
+		topicRouter.GET("/listold", func(context *gin.Context) {
+			topics := Models.TopicList{}
+			AppInit.GetDB().Limit(10).Order("id").Find(&topics)
+			context.JSON(200, topics)
+		})
+
+		//三层写法
+		topicService := &services.TopicService{}
+		TopicHandler := App.RegisterHandler(
+			services.TopicEndPoint(topicService),
+			services.SetTopicListRequest(),
+			services.SetTopicListResponse(),
+		)
+		topicRouter.GET("/list", TopicHandler)
 	}
 
 	//启动
-	router.Run()
+	router.Run(AppInit.SERVER_ADDR)
 }
