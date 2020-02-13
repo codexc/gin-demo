@@ -8,17 +8,31 @@ import (
 	"learn/topic/src/Models"
 )
 
-type TopicRequest struct {
+type TopicListRequest struct {
 	Size int `form:"size"`
 }
 
-type TopicResponse struct {
+type TopicListResponse struct {
 	Result *Models.TopicList `json:"result"`
 }
 
-func TopicEndPoint(topic *TopicService) App.EndPoint {
+func TopicListEndPoint(topic *TopicService) App.EndPoint {
 	return func(context context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(*TopicRequest)
-		return &TopicResponse{Result: topic.GetList(req)}, nil
+		req := request.(*TopicListRequest)
+		return &TopicListResponse{Result: topic.GetList(req)}, nil
+	}
+}
+
+type TopicDetailRequest struct {
+	Id int `form:"id"`
+}
+type TopicDetailResponse struct {
+	Detail *Models.Topic
+}
+
+func TopicDetailEndPoint(topic *TopicService) App.EndPoint {
+	return func(context context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*TopicDetailRequest)
+		return &TopicDetailResponse{Detail: topic.GetDetail(req)}, nil
 	}
 }

@@ -23,13 +23,22 @@ func main() {
 		})
 
 		//三层写法
+		//获取列表
 		topicService := &services.TopicService{}
 		TopicHandler := App.RegisterHandler(
-			services.TopicEndPoint(topicService),
+			services.TopicListEndPoint(topicService),
 			services.SetTopicListRequest(),
 			services.SetTopicListResponse(),
 		)
 		topicRouter.GET("/list", TopicHandler)
+
+		//获取详情
+		topicDetailHandler := App.RegisterHandler(
+			services.TopicDetailEndPoint(topicService),
+			services.SetTopicDetailRequest(),
+			services.SetTopicDetailResponse(),
+		)
+		topicRouter.GET("/detail", topicDetailHandler)
 	}
 
 	//启动

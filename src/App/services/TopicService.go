@@ -10,8 +10,15 @@ import (
 type TopicService struct {
 }
 
-func (t *TopicService) GetList(req *TopicRequest) *Models.TopicList {
+func (t *TopicService) GetList(req *TopicListRequest) *Models.TopicList {
 	topicList := &Models.TopicList{}
 	AppInit.GetDB().Limit(req.Size).Find(topicList)
 	return topicList
+}
+
+func (t *TopicService) GetDetail(req *TopicDetailRequest) *Models.Topic {
+	id := req.Id
+	topic := &Models.Topic{}
+	AppInit.GetDB().Find(topic, id)
+	return topic
 }
