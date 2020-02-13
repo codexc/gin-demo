@@ -2,6 +2,7 @@ package App
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,23 +20,30 @@ type ResponseHandler func(ginCtx *gin.Context, response interface{}) (err error)
 //业务处理流程(参数 业务 返回)
 func RegisterHandler(endPoint EndPoint, reqHandler RequestHandler, rspHandler ResponseHandler) func(context *gin.Context) {
 	return func(ginCtx *gin.Context) {
+		//捕捉异常
+		defer func() {
+			if r := recover(); r != nil {
+				ginCtx.JSON(500, gin.H{"error": fmt.Sprintf("fatal error:%s", r)})
+				return
+			}
+		}()
 		//取参数
 		request, err := reqHandler(ginCtx)
 		if err != nil {
-			ginCtx.JSON(500, gin.H{"error": "params error" + err.Error()})
+			ginCtx.JSON(400, gin.H{"error": "params error" + err.Error()})
 			return
 		}
 		//处理业务
 		rsp, err := endPoint(ginCtx, request)
 		if err != nil {
-			ginCtx.JSON(500, gin.H{"error": "business process error" + err.Error()})
+			ginCtx.JSON(400, gin.H{"error": "business process error" + err.Error()})
 			return
 		}
 
 		//返回结果
 		err = rspHandler(ginCtx, rsp)
 		if err != nil {
-			ginCtx.JSON(500, gin.H{"error": "response error" + err.Error()})
+			ginCtx.JSON(400, gin.H{"error": "response error" + err.Error()})
 			return
 		}
 	}

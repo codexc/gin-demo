@@ -19,7 +19,8 @@ type TopicListResponse struct {
 func TopicListEndPoint(topic *TopicService) App.EndPoint {
 	return func(context context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*TopicListRequest)
-		return &TopicListResponse{Result: topic.GetList(req)}, nil
+		ret, err := topic.GetList(req)
+		return &TopicListResponse{Result: ret}, err
 	}
 }
 
@@ -33,6 +34,7 @@ type TopicDetailResponse struct {
 func TopicDetailEndPoint(topic *TopicService) App.EndPoint {
 	return func(context context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*TopicDetailRequest)
-		return &TopicDetailResponse{Detail: topic.GetDetail(req)}, nil
+		ret, err := topic.GetDetail(req)
+		return &TopicDetailResponse{Detail: ret}, err
 	}
 }

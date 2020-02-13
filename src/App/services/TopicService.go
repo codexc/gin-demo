@@ -3,6 +3,7 @@
 package services
 
 import (
+	"fmt"
 	"learn/topic/src/AppInit"
 	"learn/topic/src/Models"
 )
@@ -10,15 +11,20 @@ import (
 type TopicService struct {
 }
 
-func (t *TopicService) GetList(req *TopicListRequest) *Models.TopicList {
+func (t *TopicService) GetList(req *TopicListRequest) (*Models.TopicList, error) {
 	topicList := &Models.TopicList{}
-	AppInit.GetDB().Limit(req.Size).Find(topicList)
-	return topicList
+	err := AppInit.GetDB().Limit(req.Size).Find(topicList).Error
+	if err != nil {
+		return nil, err
+	}
+	return topicList, nil
 }
 
-func (t *TopicService) GetDetail(req *TopicDetailRequest) *Models.Topic {
+func (t *TopicService) GetDetail(req *TopicDetailRequest) (*Models.Topic, error) {
 	id := req.Id
 	topic := &Models.Topic{}
-	AppInit.GetDB().Find(topic, id)
-	return topic
+	if AppInit.GetDB().Find(topic, id).RowsAffected != 1 {
+		return nil, fmt.Errorf("no topic found")
+	}
+	return topic, nil
 }
